@@ -224,7 +224,7 @@ body {
 }
 
 .logo-button.active {
-  box-shadow: 0 0 0 3px #3be588 inset;
+  box-shadow: 0 0 0 3px #ffffff inset;
 }
 
 .type-pill-row {
