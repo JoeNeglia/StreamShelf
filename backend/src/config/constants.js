@@ -1,8 +1,13 @@
+// Purpose: Shared constants for provider IDs, limits, and cache settings.
 const PROVIDER_IDS = {
   netflix: '8',
   prime: '9',
   'prime video': '9',
   hulu: '15',
+  'disney+': '337',
+  disney: '337',
+  'disney plus': '337',
+  peacock: '386|387',
   'hbo max': '1899|384',
   max: '1899|384',
 };

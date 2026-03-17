@@ -1,3 +1,4 @@
+// Purpose: API routes for streaming endpoints.
 const express = require('express');
 const { getStreaming } = require('../controllers/streamingController');
 

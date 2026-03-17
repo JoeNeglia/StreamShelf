@@ -1,3 +1,4 @@
+// Purpose: TMDB client utilities for discover queries and IMDb IDs.
 const axios = require('axios');
 const { MAX_PAGES } = require('../config/constants');
 
@@ -13,7 +14,7 @@ const tmdbClient = axios.create({
 
 const tmdbAuthParams = () => (TMDB_ACCESS_TOKEN ? {} : { api_key: TMDB_API_KEY });
 
-async function fetchDiscoverPages({ providerId, contentType }) {
+async function fetchDiscoverPages({ providerId, contentType, extraParams = {} }) {
   const url = `/discover/${contentType}`;
   const params = {
     with_watch_providers: providerId,
@@ -23,6 +24,7 @@ async function fetchDiscoverPages({ providerId, contentType }) {
     'vote_count.gte': 100,
     include_adult: false,
     language: 'en-US',
+    ...extraParams,
     ...tmdbAuthParams(),
   };
 

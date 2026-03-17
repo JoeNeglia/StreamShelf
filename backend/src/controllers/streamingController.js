@@ -1,3 +1,4 @@
+// Purpose: Handles streaming requests, filtering, enrichment, and caching.
 const cache = require('../config/cache');
 const { PROVIDER_IDS, INDIAN_LANGS, ENRICH_LIMIT } = require('../config/constants');
 const { fetchDiscoverPages, fetchImdbId } = require('../services/tmdbService');
@@ -6,6 +7,7 @@ const { fetchImdbRating, parseRating } = require('../services/omdbService');
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN || process.env.TMDB_BEARER_TOKEN;
 const OMDB_API_KEY = process.env.OMDB_API_KEY;
+const CACHE_FILTER_VERSION = 'v2';
 
 const isIndianProduction = (item) => {
   const lang = (item.original_language || '').toLowerCase();
@@ -13,20 +15,38 @@ const isIndianProduction = (item) => {
   return INDIAN_LANGS.includes(lang) || countries.includes('IN');
 };
 
+const isStandupOrComedySpecial = (item) => {
+  const text = `${item.title || ''} ${item.name || ''} ${item.overview || ''}`.toLowerCase();
+  const hasSpecialWord = /\bspecial\b/.test(text);
+  const hasPerformanceCue = /\b(comedy|comedian|stand[\s-]?up|one[\s-]man|one[\s-]woman|live performance)\b/.test(text);
+  return (
+    /stand[\s-]?up/.test(text)
+    || /comedy special/.test(text)
+    || /stand[\s-]?up special/.test(text)
+    || (hasSpecialWord && hasPerformanceCue)
+  );
+};
+
 async function getStreaming(req, res) {
   const providerParam = (req.query.provider || '').toLowerCase();
-  const contentType = (req.query.type || 'movie').toLowerCase();
+  const requestedType = (req.query.type || 'movie').toLowerCase();
   const providerId = PROVIDER_IDS[providerParam];
 
   if (!providerId) {
-    return res.status(400).json({ error: 'Unsupported provider. Try netflix, prime, hulu, or hbo max.' });
+    return res.status(400).json({ error: 'Unsupported provider. Try netflix, prime, hulu, disney+, peacock, or hbo max.' });
   }
 
-  if (!['movie', 'tv'].includes(contentType)) {
-    return res.status(400).json({ error: 'Invalid type. Use movie or tv.' });
+  if (!['movie', 'tv', 'doc'].includes(requestedType)) {
+    return res.status(400).json({ error: 'Invalid type. Use movie, tv, or doc.' });
   }
 
-  const cacheKey = `${contentType}:${providerId}`;
+  const isDoc = requestedType === 'doc';
+  const contentType = isDoc ? 'movie' : requestedType;
+  const extraParams = isDoc
+    ? { with_genres: '99' }
+    : { without_genres: '99' };
+
+  const cacheKey = `${CACHE_FILTER_VERSION}:${requestedType}:${providerId}`;
   const cached = cache.get(cacheKey);
   if (cached) return res.json({ results: cached, cached: true });
 
@@ -38,10 +58,11 @@ async function getStreaming(req, res) {
       return res.status(500).json({ error: 'OMDB_API_KEY not configured' });
     }
 
-    const collected = await fetchDiscoverPages({ providerId, contentType });
+    const collected = await fetchDiscoverPages({ providerId, contentType, extraParams });
 
     const baseItems = collected
       .filter((item) => !isIndianProduction(item))
+      .filter((item) => !(requestedType === 'movie' && isStandupOrComedySpecial(item)))
       .map((item) => ({
         id: item.id,
         title: item.title || item.name,
@@ -49,7 +70,7 @@ async function getStreaming(req, res) {
         posterPath: item.poster_path,
         tmdbRating: parseRating(item.vote_average),
         releaseDate: item.release_date || item.first_air_date,
-        mediaType: contentType,
+        mediaType: requestedType,
         provider: providerParam,
         votes: item.vote_count,
       }))

@@ -1,3 +1,4 @@
+// Purpose: Express server setup and API route mounting.
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');

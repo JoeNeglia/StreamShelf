@@ -1,3 +1,4 @@
+// Provider/type selection controls for the catalog view.
 import React from 'react'
 
 export function ProviderTypeControls({ providers, types, provider, mediaType, onProviderChange, onTypeChange, controlsRef }) {
@@ -18,9 +19,9 @@ export function ProviderTypeControls({ providers, types, provider, mediaType, on
         </div>
       </div>
 
-      <div className="control-group">
+      <div className="control-group type-control-group">
         <p className="label">Type</p>
-        <div className="pill-row">
+        <div className="pill-row type-pill-row">
           {types.map((t) => (
             <button
               key={t.key}

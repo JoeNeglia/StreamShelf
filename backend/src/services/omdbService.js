@@ -1,3 +1,4 @@
+// Purpose: OMDb client utilities for IMDb rating enrichment.
 const axios = require('axios');
 
 const OMDB_API_KEY = process.env.OMDB_API_KEY;

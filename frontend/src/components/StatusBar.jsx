@@ -1,3 +1,4 @@
+// Purpose: Loading/error/status messaging for catalog results.
 import React from 'react'
 
 export function StatusBar({ loading, error, itemsCount, providerLabel, typeLabel, cached }) {

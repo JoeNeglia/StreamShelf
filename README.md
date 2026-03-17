@@ -1,3 +1,4 @@
+<!-- Purpose: Project overview, setup, and usage instructions. -->
 # Stream Shelf
 
 View all your streaming subscription content in one unified interface. No more switching between apps to find what you can actually watch!

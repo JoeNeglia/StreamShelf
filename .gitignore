@@ -1,3 +1,4 @@
+# Purpose: Git ignore rules for build artifacts and dependencies.
 # Dependencies
 node_modules/
 frontend/node_modules/

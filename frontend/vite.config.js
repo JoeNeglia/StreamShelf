@@ -1,3 +1,4 @@
+// Purpose: Vite configuration with dev server proxy to the backend.
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
