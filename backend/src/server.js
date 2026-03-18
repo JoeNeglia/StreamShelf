@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const streamingRoutes = require('./routes/streamingRoutes');
+const { initializeBatchScheduler } = require('./jobs/imdbRatingBatcher');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,4 +25,6 @@ app.get('/{*path}', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  // Start daily IMDB rating preloader
+  initializeBatchScheduler();
 });
